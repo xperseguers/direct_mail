@@ -184,6 +184,10 @@ class NavFrame
                 $queryBuilder->expr()->eq(
                     'doktype',
                     '254'
+                ),
+                $queryBuilder->expr()->eq(
+                    'sys_language_uid',
+                    '0'
                 )
             )
             ->andWhere(

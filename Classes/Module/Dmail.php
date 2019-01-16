@@ -413,8 +413,8 @@ class Dmail extends BaseScriptClass
             'return_path'        => $this->params['return_path'],
             'priority'            => $this->params['priority'],
             'use_domain'        => $this->params['use_domain'],
-            'use_rdct'            => $this->params['use_rdct'],
-            'long_link_mode'    => $this->params['long_link_mode'],
+            'use_rdct'            => $this->params['use_rdct'] ?: '',
+            'long_link_mode'    => $this->params['long_link_mode'] ?: '',
             'organisation'        => $this->params['organisation'],
             'authcode_fieldList'=> $this->params['authcode_fieldList'],
             'plainParams'        => ''
@@ -1976,6 +1976,7 @@ class Dmail extends BaseScriptClass
                 $createDmailLink = BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&createMailFrom_UID=' . $row['uid'] . '&fetchAtOnce=1&CMD=info';
                 $pageIcon = $this->iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL) . '&nbsp;' .  htmlspecialchars($row['title']);
 
+
                 $previewHTMLLink = $previewTextLink = $createLink = '';
                 foreach ($languages as $languageUid => $lang) {
                     $langParam = DirectMailUtility::getLanguageParam($languageUid, $this->params);
@@ -2028,7 +2029,10 @@ class Dmail extends BaseScriptClass
                     $previewLink
                 ];
             }
-            $out = DirectMailUtility::formatTable($outLines, array(), 0, array(1, 1, 1, 1));
+            $out = '';
+            if (count($outLines)) {
+                $out = DirectMailUtility::formatTable($outLines, array(), 0, array(1, 1, 1, 1));
+            }
              $theOutput = $this->doc->render($this->getLanguageService()->getLL('dmail_dovsk_crFromNL') . BackendUtility::cshItem($this->cshTable, 'select_newsletter', $GLOBALS['BACK_PATH']), $out);
 
         }

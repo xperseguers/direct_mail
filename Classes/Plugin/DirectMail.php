@@ -82,8 +82,6 @@ class DirectMail extends AbstractPlugin
      */
     public function main($content, array $conf)
     {
-        global $TYPO3_CONF_VARS;
-
         $this->init($conf);
 
         $lines = array();
@@ -137,8 +135,8 @@ class DirectMail extends AbstractPlugin
                 break;
             default:
                     // Hook for processing other content types
-                if (is_array($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'])) {
-                    foreach ($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'] as $classRef) {
+                if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['renderCType'])) {
+                    foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['renderCType'] as $classRef) {
                         $procObj = &GeneralUtility::getUserObj($classRef);
                         $lines = array_merge($lines, $procObj->renderPlainText($this, $content));
                     }

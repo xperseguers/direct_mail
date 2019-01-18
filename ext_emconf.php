@@ -36,7 +36,7 @@ $EM_CONF[$_EXTKEY] = array(
         'depends' => array(
             'tt_address' => '',
             'php' => '5.5.0',
-            'typo3' => '7.6.0-8.99.99',
+            'typo3' => '7.6.0-9.99.99',
             'jumpurl' => '7.6.0-7.7.99',
             'rdct' =>'1.0.0-1.0.0'
         ),

@@ -475,9 +475,9 @@ class Dmailer
             ->select('uid_foreign')
             ->from($mm_table)
             ->leftJoin(
+                $mm_table,
                 $table,
-                $mm_table,
-                $mm_table,
+                $table,
                 $queryBuilder->expr()->eq(
                     $mm_table . '.uid_local',
                     $table . '.uid'

@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail;
 
 /*
@@ -30,13 +31,13 @@ use TYPO3\CMS\Core\Database\Connection;
  * Static class.
  * Functions in this class are used by more than one modules.
  *
- * @author		Kasper Sk�rh�j <kasper@typo3.com>
- * @author  	Jan-Erik Revsbech <jer@moccompany.com>
- * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
+ * @author        Kasper Sk�rh�j <kasper@typo3.com>
+ * @author    Jan-Erik Revsbech <jer@moccompany.com>
+ * @author    Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * @author        Ivan-Dharma Kartolo    <ivan.kartolo@dkd.de>
  *
- * @package 	TYPO3
- * @subpackage	tx_directmail
+ * @package    TYPO3
+ * @subpackage    tx_directmail
  */
 class DirectMailUtility
 {
@@ -50,7 +51,7 @@ class DirectMailUtility
      *
      * @return array recipients' data
      */
-    public static function fetchRecordsListValues(array $listArr, $table, $fields='uid,name,email')
+    public static function fetchRecordsListValues(array $listArr, $table, $fields = 'uid,name,email')
     {
         $outListArr = array();
         if (is_array($listArr) && count($listArr)) {
@@ -126,14 +127,14 @@ class DirectMailUtility
          * $plainlist is a multidimensional array.
          * this method only remove if a value has the same array
          * $plainlist = array(
-         * 		0 => array(
-         * 				name => '',
-         * 				email => '',
-         * 			),
-         * 		1 => array(
-         * 				name => '',
-         * 				email => '',
-         * 			),
+         *        0 => array(
+         *                name => '',
+         *                email => '',
+         *            ),
+         *        1 => array(
+         *                name => '',
+         *                email => '',
+         *            ),
          *
          * );
          */
@@ -159,11 +160,11 @@ class DirectMailUtility
 
         $whichTables = intval($mailGroup['whichtables']);
         $table = '';
-        if ($whichTables&1) {
+        if ($whichTables & 1) {
             $table = 'tt_address';
-        } elseif ($whichTables&2) {
+        } elseif ($whichTables & 2) {
             $table = 'fe_users';
-        } elseif ($this->userTable && ($whichTables&4)) {
+        } elseif ($this->userTable && ($whichTables & 4)) {
             $table = $this->userTable;
         }
 
@@ -195,7 +196,7 @@ class DirectMailUtility
             $res_update->update(
                 'sys_dmail_group', // table
                 $updateFields,  // value array
-                [ 'uid' => intval($mailGroup['uid']) ] // where
+                ['uid' => intval($mailGroup['uid'])] // where
             );
 
             $mailGroup = BackendUtility::getRecord('sys_dmail_group', $mailGroup['uid']);
@@ -215,7 +216,7 @@ class DirectMailUtility
      * @param int $groupUid The groupUid.
      * @param int $cat The number of relations from sys_dmail_group to sysmail_categories
      *
-     * @return	array The resulting array of uid's
+     * @return    array The resulting array of uid's
      */
     public static function getIdList($table, $pidList, $groupUid, $cat)
     {
@@ -233,7 +234,7 @@ class DirectMailUtility
 
         if ($switchTable == 'fe_users') {
             //$addWhere = ' AND fe_users.module_sys_dmail_newsletter = 1';
-            $addWhere =  $queryBuilder->expr()->eq(
+            $addWhere = $queryBuilder->expr()->eq(
                 'fe_users.module_sys_dmail_newsletter',
                 1
             );
@@ -248,7 +249,6 @@ class DirectMailUtility
         // The following will work but INSTR and CONCAT are available only in mySQL
 
 
-
         $mmTable = $GLOBALS['TCA'][$switchTable]['columns']['module_sys_dmail_category']['config']['MM'];
         $cat = intval($cat);
         if ($cat < 1) {
@@ -259,10 +259,12 @@ class DirectMailUtility
                     ->from($table, $table)
                     ->andWhere(
                         $queryBuilder->expr()->andX()
-                            ->add($queryBuilder->expr()->in('fe_groups.pid', $queryBuilder->createNamedParameter($pidList)))
+                            ->add($queryBuilder->expr()->in('fe_groups.pid',
+                                $queryBuilder->createNamedParameter($pidList)))
                             ->add('INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )')
                             ->add(
-                                $queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter(''))
+                                $queryBuilder->expr()->neq($switchTable . '.email',
+                                    $queryBuilder->createNamedParameter(''))
                             )
                             ->add($addWhere)
                     )
@@ -275,9 +277,11 @@ class DirectMailUtility
                     ->from($switchTable)
                     ->andWhere(
                         $queryBuilder->expr()->andX()
-                            ->add($queryBuilder->expr()->in($switchTable . '.pid', $queryBuilder->createNamedParameter($pidList)))
+                            ->add($queryBuilder->expr()->in($switchTable . '.pid',
+                                $queryBuilder->createNamedParameter($pidList)))
                             ->add(
-                                $queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter(''))
+                                $queryBuilder->expr()->neq($switchTable . '.email',
+                                    $queryBuilder->createNamedParameter(''))
                             )
                             ->add($addWhere)
                     )
@@ -297,17 +301,23 @@ class DirectMailUtility
                         'mm_1',
                         $switchTable,
                         $switchTable,
-                        $queryBuilder->expr()->eq($switchTable .'.uid', $queryBuilder->quoteIdentifier('mm_1.uid_local'))
+                        $queryBuilder->expr()->eq($switchTable . '.uid',
+                            $queryBuilder->quoteIdentifier('mm_1.uid_local'))
                     )
                     ->andWhere(
                         $queryBuilder->expr()->andX()
-                            ->add($queryBuilder->expr()->in('fe_groups.pid', $queryBuilder->createNamedParameter($pidList)))
+                            ->add($queryBuilder->expr()->in('fe_groups.pid',
+                                $queryBuilder->createNamedParameter($pidList)))
                             ->add('INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )')
-                            ->add($queryBuilder->expr()->eq('mm_1.uid_foreign', $queryBuilder->quoteIdentifier('g_mm.uid_foreign')))
-                            ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->quoteIdentifier('g_mm.uid_local')))
-                            ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($groupUid, \PDO::PARAM_INT)))
+                            ->add($queryBuilder->expr()->eq('mm_1.uid_foreign',
+                                $queryBuilder->quoteIdentifier('g_mm.uid_foreign')))
+                            ->add($queryBuilder->expr()->eq('sys_dmail_group.uid',
+                                $queryBuilder->quoteIdentifier('g_mm.uid_local')))
+                            ->add($queryBuilder->expr()->eq('sys_dmail_group.uid',
+                                $queryBuilder->createNamedParameter($groupUid, \PDO::PARAM_INT)))
                             ->add(
-                                $queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter(''))
+                                $queryBuilder->expr()->neq($switchTable . '.email',
+                                    $queryBuilder->createNamedParameter(''))
                             )
                             ->add($addWhere)
                     )
@@ -324,16 +334,21 @@ class DirectMailUtility
                         'mm_1',
                         $table,
                         $table,
-                        $queryBuilder->expr()->eq($table .'.uid', $queryBuilder->quoteIdentifier('mm_1.uid_local'))
+                        $queryBuilder->expr()->eq($table . '.uid', $queryBuilder->quoteIdentifier('mm_1.uid_local'))
                     )
                     ->andWhere(
                         $queryBuilder->expr()->andX()
-                            ->add($queryBuilder->expr()->in($switchTable . '.pid', $queryBuilder->createNamedParameter($pidList)))
-                            ->add($queryBuilder->expr()->eq('mm_1.uid_foreign', $queryBuilder->quoteIdentifier('g_mm.uid_foreign')))
-                            ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->quoteIdentifier('g_mm.uid_local')))
-                            ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($groupUid, \PDO::PARAM_INT)))
+                            ->add($queryBuilder->expr()->in($switchTable . '.pid',
+                                $queryBuilder->createNamedParameter($pidList)))
+                            ->add($queryBuilder->expr()->eq('mm_1.uid_foreign',
+                                $queryBuilder->quoteIdentifier('g_mm.uid_foreign')))
+                            ->add($queryBuilder->expr()->eq('sys_dmail_group.uid',
+                                $queryBuilder->quoteIdentifier('g_mm.uid_local')))
+                            ->add($queryBuilder->expr()->eq('sys_dmail_group.uid',
+                                $queryBuilder->createNamedParameter($groupUid, \PDO::PARAM_INT)))
                             ->add(
-                                $queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter(''))
+                                $queryBuilder->expr()->neq($switchTable . '.email',
+                                    $queryBuilder->createNamedParameter(''))
                             )
                             ->add($addWhere)
                     )
@@ -378,7 +393,7 @@ class DirectMailUtility
 
         // for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
         if ($switchTable == 'fe_users') {
-            $addWhere =  $queryBuilder->expr()->eq(
+            $addWhere = $queryBuilder->expr()->eq(
                 $switchTable . '.module_sys_dmail_newsletter',
                 1
             );
@@ -392,28 +407,36 @@ class DirectMailUtility
                     $switchTable,
                     $table,
                     $table,
-                    $queryBuilder->expr()->in($table.'.uid', $queryBuilder->quoteIdentifier($switchTable.'.usergroup'))
+                    $queryBuilder->expr()->in($table . '.uid',
+                        $queryBuilder->quoteIdentifier($switchTable . '.usergroup'))
                 )
                 ->innerJoin(
                     $table,
                     'sys_dmail_group',
                     'sys_dmail_group',
-                    $queryBuilder->expr()->eq('sys_dmail_group.static_list', $queryBuilder->quoteIdentifier($table . '.uid'))
+                    $queryBuilder->expr()->eq('sys_dmail_group.static_list',
+                        $queryBuilder->quoteIdentifier($table . '.uid'))
                 )
                 ->leftJoin(
                     'sys_dmail_group',
                     'sys_dmail_group_mm',
                     'sys_dmail_group_mm',
-                    $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->quoteIdentifier('sys_dmail_group.uid'))
+                    $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local',
+                        $queryBuilder->quoteIdentifier('sys_dmail_group.uid'))
                 )
                 ->andWhere(
                     $queryBuilder->expr()->andX()
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
-                        ->add($queryBuilder->expr()->eq('fe_groups.uid', $queryBuilder->quoteIdentifier('sys_dmail_group_mm.uid_foreign')))
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($table)))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group.uid',
+                            $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
+                        ->add($queryBuilder->expr()->eq('fe_groups.uid',
+                            $queryBuilder->quoteIdentifier('sys_dmail_group_mm.uid_foreign')))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames',
+                            $queryBuilder->createNamedParameter($table)))
                         ->add('INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )')
-                        ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group.deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)))
+                        ->add($queryBuilder->expr()->neq($switchTable . '.email',
+                            $queryBuilder->createNamedParameter('')))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group.deleted',
+                            $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)))
                         ->add($addWhere)
                 )
                 ->orderBy($switchTable . '.uid')
@@ -427,21 +450,28 @@ class DirectMailUtility
                     'sys_dmail_group',
                     $switchTable,
                     $switchTable,
-                    $queryBuilder->expr()->eq('sys_dmail_group.static_list', $queryBuilder->quoteIdentifier($switchTable . '.uid'))
+                    $queryBuilder->expr()->eq('sys_dmail_group.static_list',
+                        $queryBuilder->quoteIdentifier($switchTable . '.uid'))
                 )
                 ->leftJoin(
                     $switchTable,
                     'sys_dmail_group_mm',
                     'sys_dmail_group_mm',
-                    $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_foreign', $queryBuilder->quoteIdentifier($switchTable . '.uid'))
+                    $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_foreign',
+                        $queryBuilder->quoteIdentifier($switchTable . '.uid'))
                 )
                 ->andWhere(
                     $queryBuilder->expr()->andX()
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->quoteIdentifier('sys_dmail_group.uid')))
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($switchTable)))
-                        ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group.deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group.uid',
+                            $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local',
+                            $queryBuilder->quoteIdentifier('sys_dmail_group.uid')))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames',
+                            $queryBuilder->createNamedParameter($switchTable)))
+                        ->add($queryBuilder->expr()->neq($switchTable . '.email',
+                            $queryBuilder->createNamedParameter('')))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group.deleted',
+                            $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)))
                         ->add($addWhere)
                 )
                 ->orderBy($switchTable . '.uid')
@@ -469,13 +499,17 @@ class DirectMailUtility
                     'sys_dmail_group',
                     'sys_dmail_group_mm',
                     'sys_dmail_group_mm',
-                    $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->quoteIdentifier('sys_dmail_group.uid'))
+                    $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local',
+                        $queryBuilder->quoteIdentifier('sys_dmail_group.uid'))
                 )
                 ->andWhere(
                     $queryBuilder->expr()->andX()
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
-                        ->add($queryBuilder->expr()->eq('fe_groups.uid', $queryBuilder->quoteIdentifier('sys_dmail_group_mm.uid_foreign')))
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($table)))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group.uid',
+                            $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
+                        ->add($queryBuilder->expr()->eq('fe_groups.uid',
+                            $queryBuilder->quoteIdentifier('sys_dmail_group_mm.uid_foreign')))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames',
+                            $queryBuilder->createNamedParameter($table)))
                 )
                 ->execute();
 
@@ -497,7 +531,7 @@ class DirectMailUtility
                 $queryBuilder = $connection->createQueryBuilder();
                 // for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
                 if ($switchTable == 'fe_users') {
-                    $addWhere =  $queryBuilder->expr()->eq(
+                    $addWhere = $queryBuilder->expr()->eq(
                         $switchTable . '.module_sys_dmail_newsletter',
                         1
                     );
@@ -514,7 +548,8 @@ class DirectMailUtility
                     ->orWhere($usergroupInList)
                     ->andWhere(
                         $queryBuilder->expr()->andX()
-                            ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
+                            ->add($queryBuilder->expr()->neq($switchTable . '.email',
+                                $queryBuilder->createNamedParameter('')))
                             ->add($addWhere)
                     )
                     ->orderBy($switchTable . '.uid')
@@ -522,7 +557,7 @@ class DirectMailUtility
                     ->execute();
 
                 while ($row = $res->fetch()) {
-                    $outArr[]=$row['uid'];
+                    $outArr[] = $row['uid'];
                 }
             }
         }
@@ -596,12 +631,13 @@ class DirectMailUtility
                 ' AND ' . $perms_clause)
             ->execute();
 
-        while (($row=$res->fetch())) {
+        while (($row = $res->fetch())) {
             if ($row['type'] == 4) {
                 // Other mail group...
                 if (!in_array($row['uid'], $parsedGroups)) {
                     $parsedGroups[] = $row['uid'];
-                    $groups = array_merge($groups, self::getMailGroups($row['mail_groups'], $parsedGroups, $perms_clause));
+                    $groups = array_merge($groups,
+                        self::getMailGroups($row['mail_groups'], $parsedGroups, $perms_clause));
                 }
             } else {
                 // Normal mail group, just add to list
@@ -622,7 +658,7 @@ class DirectMailUtility
     public static function rearrangeCsvValues(array $lines, $fieldList)
     {
         $out = array();
-        if (is_array($lines) && count($lines)>0) {
+        if (is_array($lines) && count($lines) > 0) {
             // Analyse if first line is fieldnames.
             // Required is it that every value is either
             // 1) found in the list fieldsList in this class,
@@ -635,7 +671,8 @@ class DirectMailUtility
             $first = $lines[0];
             $fieldListArr = explode(',', $fieldList);
             if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']) {
-                $fieldListArr = array_merge($fieldListArr, explode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']));
+                $fieldListArr = array_merge($fieldListArr,
+                    explode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']));
             }
             $fieldName = 1;
             $fieldOrder = array();
@@ -644,7 +681,7 @@ class DirectMailUtility
                 list($fName, $fConf) = preg_split('|[\[\]]|', $v);
                 $fName = trim($fName);
                 $fConf = trim($fConf);
-                $fieldOrder[] = array($fName,$fConf);
+                $fieldOrder[] = array($fName, $fConf);
                 if ($fName && substr($fName, 0, 5) != 'user_' && !in_array($fName, $fieldListArr)) {
                     $fieldName = 0;
                     break;
@@ -652,7 +689,7 @@ class DirectMailUtility
             }
             // If not field list, then:
             if (!$fieldName) {
-                $fieldOrder = array(array('name'),array('email'));
+                $fieldOrder = array(array('name'), array('email'));
             }
             // Re-map values
             reset($lines);
@@ -665,7 +702,7 @@ class DirectMailUtility
             foreach ($lines as $data) {
                 // Must be a line with content.
                 // This sorts out entries with one key which is empty. Those are empty lines.
-                if (count($data)>1 || $data[0]) {
+                if (count($data) > 1 || $data[0]) {
                     // Traverse fieldOrder and map values over
                     foreach ($fieldOrder as $kk => $fN) {
                         // print "Checking $kk::".t3lib_div::view_array($fN).'<br />';
@@ -737,11 +774,13 @@ class DirectMailUtility
                 $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_category');
                 $res = $queryBuilder->select('*')
                     ->from('sys_dmail_category')
-                    ->add('where', 'sys_dmail_category.pid IN (' . str_replace(',', "','", $queryBuilder->createNamedParameter($pidList)) . ')' .
+                    ->add('where', 'sys_dmail_category.pid IN (' . str_replace(',', "','",
+                            $queryBuilder->createNamedParameter($pidList)) . ')' .
                         ' AND l18n_parent=0')
                     ->execute();
                 while (($rowCat = $res->fetch())) {
-                    if (($localizedRowCat = self::getRecordOverlay('sys_dmail_category', $rowCat, $sysLanguageUid, ''))) {
+                    if (($localizedRowCat = self::getRecordOverlay('sys_dmail_category', $rowCat, $sysLanguageUid,
+                        ''))) {
                         $categories[$localizedRowCat['uid']] = htmlspecialchars($localizedRowCat['category']);
                     }
                 }
@@ -764,14 +803,14 @@ class DirectMailUtility
      */
     public static function getRecordOverlay($table, array $row, $sys_language_content, $OLmode = '')
     {
-        if ($row['uid']>0 && $row['pid']>0) {
+        if ($row['uid'] > 0 && $row['pid'] > 0) {
             if ($GLOBALS['TCA'][$table] && $GLOBALS['TCA'][$table]['ctrl']['languageField'] && $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField']) {
                 if (!$GLOBALS['TCA'][$table]['ctrl']['transOrigPointerTable']) {
                     // Will try to overlay a record only
                     // if the sys_language_content value is larger that zero.
                     if ($sys_language_content > 0) {
                         // Must be default language or [All], otherwise no overlaying:
-                        if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']]<=0) {
+                        if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']] <= 0) {
                             // Select overlay record:
                             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
                             $res = $queryBuilder->select('*')
@@ -787,8 +826,9 @@ class DirectMailUtility
                             // Merge record content by traversing all fields:
                             if (is_array($olrow)) {
                                 foreach ($row as $fN => $fV) {
-                                    if ($fN!='uid' && $fN!='pid' && isset($olrow[$fN])) {
-                                        if ($GLOBALS['TCA'][$table]['l10n_mode'][$fN]!='exclude' && ($GLOBALS['TCA'][$table]['l10n_mode'][$fN]!='mergeIfNotBlank' || strcmp(trim($olrow[$fN]), ''))) {
+                                    if ($fN != 'uid' && $fN != 'pid' && isset($olrow[$fN])) {
+                                        if ($GLOBALS['TCA'][$table]['l10n_mode'][$fN] != 'exclude' && ($GLOBALS['TCA'][$table]['l10n_mode'][$fN] != 'mergeIfNotBlank' || strcmp(trim($olrow[$fN]),
+                                                    ''))) {
                                             $row[$fN] = $olrow[$fN];
                                         }
                                     }
@@ -801,13 +841,13 @@ class DirectMailUtility
 
                             // Otherwise, check if sys_language_content is different from the value of the record
                             // that means a japanese site might try to display french content.
-                        } elseif ($sys_language_content!=$row[$GLOBALS['TCA'][$table]['ctrl']['languageField']]) {
+                        } elseif ($sys_language_content != $row[$GLOBALS['TCA'][$table]['ctrl']['languageField']]) {
                             unset($row);
                         }
                     } else {
                         // When default language is displayed,
                         // we never want to return a record carrying another language!:
-                        if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']]>0) {
+                        if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']] > 0) {
                             unset($row);
                         }
                     }
@@ -829,27 +869,33 @@ class DirectMailUtility
      *
      * @return string HTML table
      */
-    public static function formatTable(array $tableLines, array $cellParams, $header, array $cellcmd = array(), $tableParams = 'class="table table-striped table-hover"')
-    {
+    public static function formatTable(
+        array $tableLines,
+        array $cellParams,
+        $header,
+        array $cellcmd = array(),
+        $tableParams = 'class="table table-striped table-hover"'
+    ) {
         reset($tableLines);
         $cols = count(current($tableLines));
 
         reset($tableLines);
         $lines = array();
-        $first = $header?1:0;
+        $first = $header ? 1 : 0;
 
         foreach ($tableLines as $r) {
             $rowA = array();
-            for ($k=0; $k<$cols; $k++) {
+            for ($k = 0; $k < $cols; $k++) {
                 $v = $r[$k];
-                $v = strlen($v) ? ($cellcmd[$k]?$v:htmlspecialchars($v)) : '&nbsp;';
+                $v = strlen($v) ? ($cellcmd[$k] ? $v : htmlspecialchars($v)) : '&nbsp;';
                 if ($first) {
                     $rowA[] = '<td>' . $v . '</td>';
                 } else {
-                    $rowA[] = '<td' . ($cellParams[$k]?' ' . $cellParams[$k]:'') . '>' . $v . '</td>';
+                    $rowA[] = '<td' . ($cellParams[$k] ? ' ' . $cellParams[$k] : '') . '>' . $v . '</td>';
                 }
             }
-            $lines[] = '<tr class="' . ($first ? 't3-row-header' : 'db_list_normal') . '">' . implode('', $rowA) . '</tr>';
+            $lines[] = '<tr class="' . ($first ? 't3-row-header' : 'db_list_normal') . '">' . implode('',
+                    $rowA) . '</tr>';
             $first = 0;
         }
         $table = '<table ' . $tableParams . '>' . implode('', $lines) . '</table>';
@@ -876,7 +922,8 @@ class DirectMailUtility
                 ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
             $domainResult = $queryBuilder->select('domainName')
                 ->from('sys_domain')
-                ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter(intval($domainUid), \PDO::PARAM_INT)))
+                ->where($queryBuilder->expr()->eq('uid',
+                    $queryBuilder->createNamedParameter(intval($domainUid), \PDO::PARAM_INT)))
                 ->execute();
 
             if (($domain = $domainResult->fetch())) {
@@ -889,7 +936,7 @@ class DirectMailUtility
         if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] == 1) {
             $scheme = 'http';
         }
-        return ($domainName ? (($scheme?$scheme:'http') . '://' . $domainName . ($port?':' . $port:'') . '/') : GeneralUtility::getIndpEnv('TYPO3_SITE_URL')) . 'index.php';
+        return ($domainName ? (($scheme ? $scheme : 'http') . '://' . $domainName . ($port ? ':' . $port : '') . '/') : GeneralUtility::getIndpEnv('TYPO3_SITE_URL')) . 'index.php';
     }
 
     /**
@@ -912,7 +959,7 @@ class DirectMailUtility
      *
      * @return array Parsed csv in an array
      */
-    public static function getCsvValues($str, $sep=',')
+    public static function getCsvValues($str, $sep = ',')
     {
         $fh = tmpfile();
         fwrite($fh, trim($str));
@@ -939,7 +986,7 @@ class DirectMailUtility
      * @param bool|int $editLinkFlag If set, edit link is showed
      * @param int $sys_dmail_uid ID of the sys_dmail object
      *
-     * @return	string		list of record in HTML format
+     * @return    string        list of record in HTML format
      */
     public static function getRecordList(array $listArr, $table, $pageId, $editLinkFlag = 1, $sys_dmail_uid = 0)
     {
@@ -967,13 +1014,14 @@ class DirectMailUtility
                             ],
                             'returnUrl' => $returnUrl
                         ];
-                        $editLink = '<td><a class="t3-link" href="' . BackendUtility::getModuleUrl('record_edit', $urlParameters) . '" title="' . $GLOBALS['LANG']->getLL('dmail_edit') . '">' .
+                        $editLink = '<td><a class="t3-link" href="' . BackendUtility::getModuleUrl('record_edit',
+                                $urlParameters) . '" title="' . $GLOBALS['LANG']->getLL('dmail_edit') . '">' .
                             $iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                             '</a></td>';
                     }
                 }
 
-                $lines[]='<tr class="db_list_normal">
+                $lines[] = '<tr class="db_list_normal">
 				' . $tableIcon . '
 				' . $editLink . '
 				<td nowrap> ' . htmlspecialchars($row['email']) . ' </td>
@@ -1057,11 +1105,16 @@ class DirectMailUtility
      * @param bool|int $uppercase If set, all marker string substitution is done with upper-case markers.
      * @param bool|int $deleteUnused If set, all unused marker are deleted.
      *
-     * @return	string		The processed output stream
+     * @return    string        The processed output stream
      * @see substituteMarker(), substituteMarkerInObject(), TEMPLATE()
      */
-    public static function substituteMarkerArray($content, array $markContentArray, $wrap = '', $uppercase = 0, $deleteUnused = 0)
-    {
+    public static function substituteMarkerArray(
+        $content,
+        array $markContentArray,
+        $wrap = '',
+        $uppercase = 0,
+        $deleteUnused = 0
+    ) {
         if (is_array($markContentArray)) {
             $wrapArr = GeneralUtility::trimExplode('|', $wrap);
             foreach ($markContentArray as $marker => $markContent) {
@@ -1079,7 +1132,8 @@ class DirectMailUtility
                 if (empty($wrap)) {
                     $wrapArr = array('###', '###');
                 }
-                $content = preg_replace('/' . preg_quote($wrapArr[0]) . '([A-Z0-9_-|]*)' . preg_quote($wrapArr[1]) . '/is', '', $content);
+                $content = preg_replace('/' . preg_quote($wrapArr[0]) . '([A-Z0-9_-|]*)' . preg_quote($wrapArr[1]) . '/is',
+                    '', $content);
             }
         }
         return $content;
@@ -1101,21 +1155,23 @@ class DirectMailUtility
         $result = false;
 
         $newRecord = array(
-            'type'                    => 0,
-            'pid'                    => $parameters['pid'],
-            'from_email'            => $parameters['from_email'],
-            'from_name'                => $parameters['from_name'],
-            'replyto_email'            => $parameters['replyto_email'],
-            'replyto_name'            => $parameters['replyto_name'],
-            'return_path'            => $parameters['return_path'],
-            'priority'                => $parameters['priority'],
-            'use_domain'            => $parameters['use_domain'],
-            'use_rdct'                => (!empty($parameters['use_rdct']) ? $parameters['use_rdct']:0), /*$parameters['use_rdct'],*/
-            'long_link_mode'        => (!empty($parameters['long_link_mode']) ? $parameters['long_link_mode']:0),//$parameters['long_link_mode'],
-            'organisation'            => $parameters['organisation'],
-            'authcode_fieldList'    => $parameters['authcode_fieldList'],
-            'sendOptions'            => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
-            'long_link_rdct_url'    => self::getUrlBase($parameters['use_domain']),
+            'type' => 0,
+            'pid' => $parameters['pid'],
+            'from_email' => $parameters['from_email'],
+            'from_name' => $parameters['from_name'],
+            'replyto_email' => $parameters['replyto_email'],
+            'replyto_name' => $parameters['replyto_name'],
+            'return_path' => $parameters['return_path'],
+            'priority' => $parameters['priority'],
+            'use_domain' => $parameters['use_domain'],
+            'use_rdct' => (!empty($parameters['use_rdct']) ? $parameters['use_rdct'] : 0),
+            /*$parameters['use_rdct'],*/
+            'long_link_mode' => (!empty($parameters['long_link_mode']) ? $parameters['long_link_mode'] : 0),
+            //$parameters['long_link_mode'],
+            'organisation' => $parameters['organisation'],
+            'authcode_fieldList' => $parameters['authcode_fieldList'],
+            'sendOptions' => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
+            'long_link_rdct_url' => self::getUrlBase($parameters['use_domain']),
             'sys_language_uid' => (int)$sysLanguageUid,
             'attachment' => '',
             'mailContent' => ''
@@ -1156,7 +1212,7 @@ class DirectMailUtility
         /*if (GeneralUtility::inList($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'], $pageRecord['doktype'])) {*/
         if ($pageRecord['doktype']) {
             $newRecord['subject'] = $pageRecord['title'];
-            $newRecord['page']    = $pageRecord['uid'];
+            $newRecord['page'] = $pageRecord['uid'];
             $newRecord['charset'] = self::getCharacterSetOfPage($pageRecord['uid']);
         }
 
@@ -1192,7 +1248,7 @@ class DirectMailUtility
         if (isset($params['langParams.'][$sysLanguageUid])) {
             $param = $params['langParams.'][$sysLanguageUid];
 
-        // fallback: L == sys_language_uid
+            // fallback: L == sys_language_uid
         } else {
             $param = '&L=' . $sysLanguageUid;
         }
@@ -1210,29 +1266,33 @@ class DirectMailUtility
      * @param string $externalUrlPlain Linkt to the text version
      * @param array $parameters Additional newsletter parameters
      *
-     * @return	int/bool Error or warning message produced during the process
+     * @return    int/bool Error or warning message produced during the process
      */
-    public static function createDirectMailRecordFromExternalURL($subject, $externalUrlHtml, $externalUrlPlain, array $parameters)
-    {
+    public static function createDirectMailRecordFromExternalURL(
+        $subject,
+        $externalUrlHtml,
+        $externalUrlPlain,
+        array $parameters
+    ) {
         $result = false;
 
         $newRecord = array(
-            'type'                    => 1,
-            'pid'                    => $parameters['pid'],
-            'subject'                => $subject,
-            'from_email'            => $parameters['from_email'],
-            'from_name'                => $parameters['from_name'],
-            'replyto_email'            => $parameters['replyto_email'],
-            'replyto_name'            => $parameters['replyto_name'],
-            'return_path'            => $parameters['return_path'],
-            'priority'                => $parameters['priority'],
-            'use_domain'            => $parameters['use_domain'],
-            'use_rdct'                => (!empty($parameters['use_rdct']) ? $parameters['use_rdct']:0),
-            'long_link_mode'        => $parameters['long_link_mode'],
-            'organisation'            => $parameters['organisation'],
-            'authcode_fieldList'    => $parameters['authcode_fieldList'],
-            'sendOptions'            => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
-            'long_link_rdct_url'    => self::getUrlBase($parameters['use_domain'])
+            'type' => 1,
+            'pid' => $parameters['pid'],
+            'subject' => $subject,
+            'from_email' => $parameters['from_email'],
+            'from_name' => $parameters['from_name'],
+            'replyto_email' => $parameters['replyto_email'],
+            'replyto_name' => $parameters['replyto_name'],
+            'return_path' => $parameters['return_path'],
+            'priority' => $parameters['priority'],
+            'use_domain' => $parameters['use_domain'],
+            'use_rdct' => (!empty($parameters['use_rdct']) ? $parameters['use_rdct'] : 0),
+            'long_link_mode' => $parameters['long_link_mode'],
+            'organisation' => $parameters['organisation'],
+            'authcode_fieldList' => $parameters['authcode_fieldList'],
+            'sendOptions' => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
+            'long_link_rdct_url' => self::getUrlBase($parameters['use_domain'])
         );
 
 
@@ -1251,7 +1311,7 @@ class DirectMailUtility
         // No plain text url
         if (!$externalUrlPlain || $urlParts === false || !$urlParts['host']) {
             $newRecord['plainParams'] = '';
-            $newRecord['sendOptions']&=254;
+            $newRecord['sendOptions'] &= 254;
         } else {
             $newRecord['plainParams'] = $externalUrlPlain;
         }
@@ -1259,7 +1319,7 @@ class DirectMailUtility
         // No html url
         $urlParts = @parse_url($externalUrlHtml);
         if (!$externalUrlHtml || $urlParts === false || !$urlParts['host']) {
-            $newRecord['sendOptions']&=253;
+            $newRecord['sendOptions'] &= 253;
         } else {
             $newRecord['HTMLParams'] = $externalUrlHtml;
         }
@@ -1331,7 +1391,8 @@ class DirectMailUtility
         $htmlmail->includeMedia = $row['includeMedia'];
 
         if ($plainTextUrl) {
-            $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params), 0, array('User-Agent: Direct Mail'));
+            $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params), 0,
+                array('User-Agent: Direct Mail'));
             $htmlmail->addPlain($mailContent);
             if (!$mailContent || !$htmlmail->theParts['plain']['content']) {
                 $errorMsg[] = $GLOBALS['LANG']->getLL('dmail_no_plain_content');
@@ -1348,7 +1409,8 @@ class DirectMailUtility
             if ($row['type'] == 1) {
                 // Try to auto-detect the charset of the message
                 $matches = array();
-                $res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m', $htmlmail->theParts['html_content'], $matches);
+                $res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m',
+                    $htmlmail->theParts['html_content'], $matches);
                 if ($res == 1) {
                     $htmlmail->charset = $matches[1];
                 } elseif (isset($params['direct_mail_charset'])) {
@@ -1372,10 +1434,10 @@ class DirectMailUtility
             $mailContent = base64_encode(serialize($htmlmail->theParts));
 
             $updateData = array(
-                'issent'             => 0,
-                'charset'            => $htmlmail->charset,
-                'mailContent'        => $mailContent,
-                'renderedSize'       => strlen($mailContent),
+                'issent' => 0,
+                'charset' => $htmlmail->charset,
+                'mailContent' => $mailContent,
+                'renderedSize' => strlen($mailContent),
                 'long_link_rdct_url' => $urlBase
             );
 
@@ -1384,7 +1446,7 @@ class DirectMailUtility
             $connection->update(
                 'sys_dmail', // table
                 $updateData, // value array
-                [ 'uid' => intval($row['uid']) ] // where
+                ['uid' => intval($row['uid'])] // where
             );
 
             if (count($warningMsg)) {
@@ -1486,14 +1548,14 @@ class DirectMailUtility
     public static function getFullUrlsForDirectMailRecord(array $row)
     {
         $result = array(
-                // Finding the domain to use
+            // Finding the domain to use
             'baseUrl' => self::getUrlBase($row['use_domain']),
             'htmlUrl' => '',
             'plainTextUrl' => ''
         );
 
         // Finding the url to fetch content from
-        switch ((string) $row['type']) {
+        switch ((string)$row['type']) {
             case 1:
                 $result['htmlUrl'] = $row['HTMLParams'];
                 $result['plainTextUrl'] = $row['plainParams'];
@@ -1505,7 +1567,7 @@ class DirectMailUtility
 
         // plain
         if ($result['plainTextUrl']) {
-            if (!($row['sendOptions']&1)) {
+            if (!($row['sendOptions'] & 1)) {
                 $result['plainTextUrl'] = '';
             } else {
                 $urlParts = @parse_url($result['plainTextUrl']);
@@ -1516,7 +1578,7 @@ class DirectMailUtility
         }
         // html
         if ($result['htmlUrl']) {
-            if (!($row['sendOptions']&2)) {
+            if (!($row['sendOptions'] & 2)) {
                 $result['htmlUrl'] = '';
             } else {
                 $urlParts = @parse_url($result['htmlUrl']);
@@ -1535,7 +1597,7 @@ class DirectMailUtility
      * @param int $language System language uid, optional, defaults to 0
      * @param bool $useCache Use cache to reuse TSFE
      *
-     * @return	void
+     * @return    void
      */
     public static function initializeTsfe($pageId, $language = 0, $useCache = true)
     {
@@ -1553,7 +1615,8 @@ class DirectMailUtility
         if (!isset($tsfeCache[$cacheId]) || !$useCache) {
             GeneralUtility::_GETset($language, 'L');
 
-            $GLOBALS['TSFE'] = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController', $GLOBALS['TYPO3_CONF_VARS'], $pageId, 0);
+            $GLOBALS['TSFE'] = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController',
+                $GLOBALS['TYPO3_CONF_VARS'], $pageId, 0);
 
             // for certain situations we need to trick TSFE into granting us
             // access to the page in any case to make getPageAndRootline() work
@@ -1653,7 +1716,7 @@ class DirectMailUtility
      * @param string $tsConfPrefix Prefix for object paths
      * @param array|string $impParams [Description needed.]
      *
-     * @return	void
+     * @return    void
      *
      * @see implodeTSParams(), getPagesTSconfig()
      */
@@ -1701,8 +1764,8 @@ class DirectMailUtility
                 $connection = $connectionPool->getConnectionForTable('pages');
                 $connection->update(
                     'pages', // table
-                    [ 'TSconfig' => $tsConf ],  // value array
-                    [ 'uid' => intval($id) ] // where
+                    ['TSconfig' => $tsConf],  // value array
+                    ['uid' => intval($id)] // where
                 );
             }
         }

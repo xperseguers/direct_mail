@@ -1740,10 +1740,16 @@ class Dmail extends BaseScriptClass
         // Todo Perhaps we should here check if TV is installed and fetch content from that instead of the old Columns...
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getQueryBuilderForTable('tt_content');
+
+        $createMailFromInternalPageLang = (int)GeneralUtility::_GP('createMailFrom_LANG');
+
         $res = $queryBuilder
             ->select('colPos', 'CType', 'uid', 'pid', 'header', 'bodytext', 'module_sys_dmail_category')
             ->from('tt_content')
-            ->add('where', 'pid=' . intval($this->pages_uid))
+            ->where(
+                'pid=' . intval($this->pages_uid) .
+                ' AND sys_language_uid = ' . $createMailFromInternalPageLang
+            )
             ->orderBy('colPos')
             ->addOrderBy('sorting')
             ->execute()
@@ -2012,6 +2018,7 @@ class Dmail extends BaseScriptClass
             ->from('pages')
             ->add('where', 'pid=' . intval($this->id) .
                 ' AND doktype IN (1,3,4,6)' .
+                ' AND sys_language_uid = 0' .
                 ' AND ' . $this->perms_clause)
             ->orderBy('sorting')
             ->execute();

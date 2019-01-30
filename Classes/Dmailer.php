@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail;
 
 /*
@@ -25,11 +26,11 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 /**
  * Class, doing the sending of Direct-mails, eg. through a cron-job
  *
- * @author		Kasper Skaarhoj <kasperYYYY@typo3.com>
+ * @author        Kasper Skaarhoj <kasperYYYY@typo3.com>
  * @author      Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  *
- * @package 	TYPO3
- * @subpackage 	tx_directmail
+ * @package    TYPO3
+ * @subpackage    tx_directmail
  */
 class Dmailer
 {
@@ -111,7 +112,7 @@ class Dmailer
     public $tempFileList = array();
 
     //in TYPO3 9 LanguageService->charset has been removed because backend charset is always utf-8
-    protected $backendCharset= 'utf-8';
+    protected $backendCharset = 'utf-8';
 
     /*
      * @var integer Usergroup that is simulated when fetching the mail content
@@ -132,8 +133,7 @@ class Dmailer
     {
         if ($this->charsetConverter && ($this->charsetConverter instanceof CharsetConverter)) {
             // charsetConverter is set already
-        } else
-        {
+        } else {
             $this->charsetConverter = GeneralUtility::makeInstance(CharsetConverter::class);
         }
         return $this->charsetConverter;
@@ -164,31 +164,35 @@ class Dmailer
 
         $this->encoding = $row['encoding'];
 
-        $this->theParts  = unserialize(base64_decode($row['mailContent']));
+        $this->theParts = unserialize(base64_decode($row['mailContent']));
         $this->messageid = $this->theParts['messageid'];
 
         $this->subject = $this->getCharsetConverter()->conv($row['subject'], $this->backendCharset, $this->charset);
 
         $this->from_email = $row['from_email'];
-        $this->from_name = ($row['from_name'] ? $this->getCharsetConverter()->conv($row['from_name'], $this->backendCharset, $this->charset) : '');
+        $this->from_name = ($row['from_name'] ? $this->getCharsetConverter()->conv($row['from_name'],
+            $this->backendCharset, $this->charset) : '');
 
         $this->replyto_email = ($row['replyto_email'] ? $row['replyto_email'] : '');
-        $this->replyto_name  = ($row['replyto_name'] ? $this->getCharsetConverter()->conv($row['replyto_name'], $this->backendCharset, $this->charset) : '');
+        $this->replyto_name = ($row['replyto_name'] ? $this->getCharsetConverter()->conv($row['replyto_name'],
+            $this->backendCharset, $this->charset) : '');
 
-        $this->organisation  = ($row['organisation'] ? $this->getCharsetConverter()->conv($row['organisation'], $this->backendCharset, $this->charset) : '');
+        $this->organisation = ($row['organisation'] ? $this->getCharsetConverter()->conv($row['organisation'],
+            $this->backendCharset, $this->charset) : '');
 
-        $this->priority      = DirectMailUtility::intInRangeWrapper($row['priority'], 1, 5);
-        $this->mailer        = 'TYPO3 Direct Mail module';
+        $this->priority = DirectMailUtility::intInRangeWrapper($row['priority'], 1, 5);
+        $this->mailer = 'TYPO3 Direct Mail module';
         $this->authCode_fieldList = ($row['authcode_fieldList'] ? $row['authcode_fieldList'] : 'uid');
 
         $this->dmailer['sectionBoundary'] = '<!--DMAILER_SECTION_BOUNDARY';
-        $this->dmailer['html_content']    =  $this->theParts['html']['content'];
-        $this->dmailer['plain_content']   = $this->theParts['plain']['content'];
-        $this->dmailer['messageID']       = $this->messageid;
-        $this->dmailer['sys_dmail_uid']   = $sys_dmail_uid;
-        $this->dmailer['sys_dmail_rec']   = $row;
+        $this->dmailer['html_content'] = $this->theParts['html']['content'];
+        $this->dmailer['plain_content'] = $this->theParts['plain']['content'];
+        $this->dmailer['messageID'] = $this->messageid;
+        $this->dmailer['sys_dmail_uid'] = $sys_dmail_uid;
+        $this->dmailer['sys_dmail_rec'] = $row;
 
-        $this->dmailer['boundaryParts_html'] = explode($this->dmailer['sectionBoundary'], '_END-->' . $this->dmailer['html_content']);
+        $this->dmailer['boundaryParts_html'] = explode($this->dmailer['sectionBoundary'],
+            '_END-->' . $this->dmailer['html_content']);
         foreach ($this->dmailer['boundaryParts_html'] as $bKey => $bContent) {
             $this->dmailer['boundaryParts_html'][$bKey] = explode('-->', $bContent, 2);
 
@@ -205,13 +209,14 @@ class Dmailer
                 $this->dmailer['boundaryParts_html'][$bKey]['mediaList'] .= ',' . strtok($part, '.');
             }
         }
-        $this->dmailer['boundaryParts_plain'] = explode($this->dmailer['sectionBoundary'], '_END-->' . $this->dmailer['plain_content']);
+        $this->dmailer['boundaryParts_plain'] = explode($this->dmailer['sectionBoundary'],
+            '_END-->' . $this->dmailer['plain_content']);
         foreach ($this->dmailer['boundaryParts_plain'] as $bKey => $bContent) {
             $this->dmailer['boundaryParts_plain'][$bKey] = explode('-->', $bContent, 2);
         }
 
-        $this->flag_html    = ($this->theParts['html']['content']  ? 1 : 0);
-        $this->flag_plain   = ($this->theParts['plain']['content'] ? 1 : 0);
+        $this->flag_html = ($this->theParts['html']['content'] ? 1 : 0);
+        $this->flag_plain = ($this->theParts['plain']['content'] ? 1 : 0);
         $this->includeMedia = $row['includeMedia'];
     }
 
@@ -244,9 +249,11 @@ class Dmailer
         // replace %23%23%23 with ###, since typolink generated link with urlencode
         $content = str_replace('%23%23%23', '###', $content);
 
-        $rowFieldsArray = GeneralUtility::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['defaultRecipFields']);
+        $rowFieldsArray = GeneralUtility::trimExplode(',',
+            $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['defaultRecipFields']);
         if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']) {
-            $rowFieldsArray = array_merge($rowFieldsArray, GeneralUtility::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']));
+            $rowFieldsArray = array_merge($rowFieldsArray, GeneralUtility::trimExplode(',',
+                $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']));
         }
 
         foreach ($rowFieldsArray as $substField) {
@@ -266,7 +273,7 @@ class Dmailer
             $mailMarkersHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailMarkersHook'];
             if (is_array($mailMarkersHook)) {
                 $hookParameters = array(
-                    'row'     => &$recipRow,
+                    'row' => &$recipRow,
                     'markers' => &$markers,
                 );
                 $hookReference = &$this;
@@ -307,47 +314,54 @@ class Dmailer
         $recipRow['email'] = trim($recipRow['email']);
 
         if ($recipRow['email']) {
-            $midRidId  = 'MID' . $this->dmailer['sys_dmail_uid'] . '_' . $tableNameChar . $recipRow['uid'];
+            $midRidId = 'MID' . $this->dmailer['sys_dmail_uid'] . '_' . $tableNameChar . $recipRow['uid'];
             $uniqMsgId = md5(microtime()) . '_' . $midRidId;
             $authCode = GeneralUtility::stdAuthCode($recipRow, $this->authCode_fieldList);
 
             $additionalMarkers = array(
-                    // Put in the tablename of the userinformation
-                '###SYS_TABLE_NAME###'      => $tableNameChar,
-                    // Put in the uid of the mail-record
-                '###SYS_MAIL_ID###'         => $this->dmailer['sys_dmail_uid'],
-                '###SYS_AUTHCODE###'        => $authCode,
-                    // Put in the unique message id in HTML-code
+                // Put in the tablename of the userinformation
+                '###SYS_TABLE_NAME###' => $tableNameChar,
+                // Put in the uid of the mail-record
+                '###SYS_MAIL_ID###' => $this->dmailer['sys_dmail_uid'],
+                '###SYS_AUTHCODE###' => $authCode,
+                // Put in the unique message id in HTML-code
                 $this->dmailer['messageID'] => $uniqMsgId,
             );
 
             $this->mediaList = '';
             $this->theParts['html']['content'] = '';
             if ($this->flag_html && ($recipRow['module_sys_dmail_html'] || $tableNameChar == 'P')) {
-                $tempContent_HTML = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_html'], $recipRow['sys_dmail_categories_list']);
+                $tempContent_HTML = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_html'],
+                    $recipRow['sys_dmail_categories_list']);
                 if ($this->mailHasContent) {
                     $tempContent_HTML = $this->replaceMailMarkers($tempContent_HTML, $recipRow, $additionalMarkers);
                     $this->theParts['html']['content'] = $this->encodeMsg($tempContent_HTML);
-                    $returnCode|=1;
+                    $returnCode |= 1;
                 }
             }
 
             // Plain
             $this->theParts['plain']['content'] = '';
             if ($this->flag_plain) {
-                $tempContent_Plain = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_plain'], $recipRow['sys_dmail_categories_list']);
+                $tempContent_Plain = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_plain'],
+                    $recipRow['sys_dmail_categories_list']);
                 if ($this->mailHasContent) {
                     $tempContent_Plain = $this->replaceMailMarkers($tempContent_Plain, $recipRow, $additionalMarkers);
                     if (trim($this->dmailer['sys_dmail_rec']['use_rdct']) || trim($this->dmailer['sys_dmail_rec']['long_link_mode'])) {
-                        $tempContent_Plain = DirectMailUtility::substUrlsInPlainText($tempContent_Plain, $this->dmailer['sys_dmail_rec']['long_link_mode']?'all':'76', $this->dmailer['sys_dmail_rec']['long_link_rdct_url']);
+                        $tempContent_Plain = DirectMailUtility::substUrlsInPlainText(
+                            $tempContent_Plain,
+                            $this->dmailer['sys_dmail_rec']['long_link_mode'] ? 'all' : '76',
+                            $this->dmailer['sys_dmail_rec']['long_link_rdct_url']
+                        );
                     }
                     $this->theParts['plain']['content'] = $this->encodeMsg($tempContent_Plain);
-                    $returnCode|=2;
+                    $returnCode |= 2;
                 }
             }
 
             $this->TYPO3MID = $midRidId . '-' . md5($midRidId);
-            $this->dmailer['sys_dmail_rec']['return_path'] = str_replace('###XID###', $midRidId, $this->dmailer['sys_dmail_rec']['return_path']);
+            $this->dmailer['sys_dmail_rec']['return_path'] = str_replace('###XID###', $midRidId,
+                $this->dmailer['sys_dmail_rec']['return_path']);
 
             // recipient swiftmailer style
             // check if the email valids
@@ -356,7 +370,8 @@ class Dmailer
                 if (!empty($recipRow['name'])) {
                     // if there's a name
                     $recipient = array(
-                        $recipRow['email'] => $this->getCharsetConverter()->conv($recipRow['name'], $this->backendCharset, $this->charset),
+                        $recipRow['email'] => $this->getCharsetConverter()->conv($recipRow['name'],
+                            $this->backendCharset, $this->charset),
                     );
                 } else {
                     // if only email is given
@@ -379,17 +394,19 @@ class Dmailer
      *
      * @param string $addressList list of recipient address, comma list of emails
      *
-     * @return	bool
+     * @return    bool
      */
     public function dmailer_sendSimple($addressList)
     {
         if ($this->theParts['html']['content']) {
-            $this->theParts['html']['content'] = $this->encodeMsg($this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_html'], -1));
+            $this->theParts['html']['content'] = $this->encodeMsg($this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_html'],
+                -1));
         } else {
             $this->theParts['html']['content'] = '';
         }
         if ($this->theParts['plain']['content']) {
-            $this->theParts['plain']['content'] = $this->encodeMsg($this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_plain'], -1));
+            $this->theParts['plain']['content'] = $this->encodeMsg($this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_plain'],
+                -1));
         } else {
             $this->theParts['plain']['content'] = '';
         }
@@ -411,13 +428,13 @@ class Dmailer
      * @param array $cArray Array of content split by dmail boundary
      * @param string $userCategories The list of categories the user is subscribing to.
      *
-     * @return	string		Content of the email, which the recipient subscribed
+     * @return    string        Content of the email, which the recipient subscribed
      */
     public function dmailer_getBoundaryParts($cArray, $userCategories)
     {
-        $returnVal='';
+        $returnVal = '';
         $this->mailHasContent = false;
-        $boundaryMax = count($cArray)-1;
+        $boundaryMax = count($cArray) - 1;
         foreach ($cArray as $bKey => $cP) {
             $key = substr($cP[0], 1);
             $isSubscribed = false;
@@ -456,7 +473,7 @@ class Dmailer
      * @param string $table Tablename of the recipient
      * @param int $uid Uid of the recipient
      *
-     * @return	string		list of categories
+     * @return    string        list of categories
      */
     public function getListOfRecipentCategories($table, $uid)
     {
@@ -502,9 +519,9 @@ class Dmailer
     /**
      * Mass send to recipient in the list
      *
-     * @param	array $query_info List of recipients' ID in the sys_dmail table
-     * @param	int $mid Directmail ID. UID of the sys_dmail table
-     * @return	boolean
+     * @param    array $query_info List of recipients' ID in the sys_dmail table
+     * @param    int $mid Directmail ID. UID of the sys_dmail table
+     * @return    boolean
      */
     public function dmailer_masssend_list(array $query_info, $mid)
     {
@@ -512,7 +529,7 @@ class Dmailer
         global $LANG;
 
         $enableFields['tt_address'] = 'tt_address.deleted=0 AND tt_address.hidden=0';
-        $enableFields['fe_users']   = 'fe_users.deleted=0 AND fe_users.disable=0';
+        $enableFields['fe_users'] = 'fe_users.deleted=0 AND fe_users.disable=0';
 
         $c = 0;
         $returnVal = true;
@@ -521,12 +538,12 @@ class Dmailer
                 if (is_array($listArr)) {
                     $ct = 0;
                     // Find tKey
-                    if ($table=='tt_address' || $table=='fe_users') {
+                    if ($table == 'tt_address' || $table == 'fe_users') {
                         $tKey = substr($table, 0, 1);
-                    } elseif ($table=='PLAINLIST') {
-                        $tKey='P';
+                    } elseif ($table == 'PLAINLIST') {
+                        $tKey = 'P';
                     } else {
-                        $tKey='u';
+                        $tKey = 'u';
                     }
 
                     // Send mails
@@ -569,7 +586,8 @@ class Dmailer
                                 ->execute();
 
                             while (($recipRow = $statement->fetch())) {
-                                $recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table, $recipRow['uid']);
+                                $recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table,
+                                    $recipRow['uid']);
                                 if ($c >= $this->sendPerCycle) {
                                     $returnVal = false;
                                     break;
@@ -581,8 +599,9 @@ class Dmailer
                             }
                         }
                     }
-                    if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']){
-                        GeneralUtility::devLog($LANG->getLL('dmailer_sending') . ' ' . $ct . ' ' . $LANG->getLL('dmailer_sending_to_table') . ' ' . $table, 'direct_mail');
+                    if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']) {
+                        GeneralUtility::devLog($LANG->getLL('dmailer_sending') . ' ' . $ct . ' ' . $LANG->getLL('dmailer_sending_to_table') . ' ' . $table,
+                            'direct_mail');
                     }
                     $this->logArray[] = $LANG->getLL('dmailer_sending') . ' ' . $ct . ' ' . $LANG->getLL('dmailer_sending_to_table') . ' ' . $table;
                 }
@@ -600,7 +619,7 @@ class Dmailer
      *
      * @internal param string $tKey : table of the recipient
      *
-     * @return	void
+     * @return    void
      */
     public function shipOfMail($mid, array $recipRow, $tableKey)
     {
@@ -611,15 +630,14 @@ class Dmailer
             // write to dmail_maillog table. if it can be written, continue with sending.
             // if not, stop the script and report error
             $rC = 0;
-            $logUid = $this->dmailer_addToMailLog($mid, $tableKey . '_' . $recipRow['uid'], strlen($this->message), GeneralUtility::milliseconds() - $pt, $rC, $recipRow['email']);
+            $logUid = $this->dmailer_addToMailLog($mid, $tableKey . '_' . $recipRow['uid'], strlen($this->message),
+                GeneralUtility::milliseconds() - $pt, $rC, $recipRow['email']);
 
             if ($logUid) {
-                $rC     = $this->dmailer_sendAdvanced($recipRow, $tableKey);
+                $rC = $this->dmailer_sendAdvanced($recipRow, $tableKey);
                 $parsetime = GeneralUtility::milliseconds() - $pt;
                 // Update the log with real values
-                $updateFields = array(
-
-                );
+                $updateFields = array();
                 $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
                 $ok = $queryBuilder
                     ->update('sys_dmail_maillog')
@@ -637,14 +655,16 @@ class Dmailer
 
                 if (!$ok) {
                     if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']) {
-                        GeneralUtility::devLog('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')', 'direct_mail', 3);
+                        GeneralUtility::devLog('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')',
+                            'direct_mail', 3);
                     }
                     die('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')');
                 }
             } else {
                 // stop the script if dummy log can't be made
                 if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']) {
-                    GeneralUtility::devLog('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')', 'direct_mail', 3);
+                    GeneralUtility::devLog('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')',
+                        'direct_mail', 3);
                 }
                 die('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')');
             }
@@ -655,7 +675,7 @@ class Dmailer
      * Converting array key.
      * fe_user and tt_address are using different fieldname for the same information
      *
-     * @param array	$recipRow Recipient's data array
+     * @param array $recipRow Recipient's data array
      *
      * @return array Fixed recipient's data array
      */
@@ -684,7 +704,7 @@ class Dmailer
      * @param int $mid Sys_dmail UID
      * @param string $key Begin or end
      *
-     * @return	void
+     * @return    void
      */
     public function dmailer_setBeginEnd($mid, $key)
     {
@@ -720,7 +740,7 @@ class Dmailer
         }
 
         //
-        if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']){
+        if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']) {
             GeneralUtility::devLog($subject . ': ' . $message, 'direct_mail');
         }
         $this->logArray[] = $subject . ': ' . $message;
@@ -729,7 +749,8 @@ class Dmailer
         if ($this->notificationJob) {
             $from_name = '';
             if ($this->from_name) {
-                $from_name = $this->getCharsetConverter()->conv($this->from_name, $this->charset, $this->backendCharset);
+                $from_name = $this->getCharsetConverter()->conv($this->from_name, $this->charset,
+                    $this->backendCharset);
             }
 
             /* @var $mail \TYPO3\CMS\Core\Mail\MailMessage */
@@ -753,7 +774,7 @@ class Dmailer
      *
      * @return int Number of sent emails
      */
-    public function dmailer_howManySendMails($mid, $rtbl='')
+    public function dmailer_howManySendMails($mid, $rtbl = '')
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
         $queryBuilder
@@ -795,7 +816,7 @@ class Dmailer
      * @param int $rid Recipient UID
      * @param string $rtbl Recipient table
      *
-     * @return	int Number of found records
+     * @return    int Number of found records
      */
     public function dmailer_isSend($mid, $rid, $rtbl)
     {
@@ -836,10 +857,10 @@ class Dmailer
     /**
      * Get IDs of recipient, which has been sent
      *
-     * @param	int $mid Newsletter ID. UID of the sys_dmail record
-     * @param	string $rtbl Recipient table
+     * @param    int $mid Newsletter ID. UID of the sys_dmail record
+     * @param    string $rtbl Recipient table
      *
-     * @return	string		list of sent recipients
+     * @return    string        list of sent recipients
      */
     public function dmailer_getSentMails($mid, $rtbl)
     {
@@ -892,13 +913,13 @@ class Dmailer
     {
         $temp_recip = explode('_', $rid);
         $insertFields = array(
-            'mid'       => intval($mid),
-            'rtbl'      => $temp_recip[0],
-            'rid'       => intval($temp_recip[1]),
-            'email'     => $email,
-            'tstamp'    => time(),
-            'url'       => '',
-            'size'      => $size,
+            'mid' => intval($mid),
+            'rtbl' => $temp_recip[0],
+            'rid' => intval($temp_recip[1]),
+            'email' => $email,
+            'tstamp' => time(),
+            'url' => '',
+            'size' => $size,
             'parsetime' => $parsetime,
             'html_sent' => intval($html)
         );
@@ -918,7 +939,7 @@ class Dmailer
      * Look if there is newsletter to be sent
      * and do the sending process. Otherwise quit runtime
      *
-     * @return	void
+     * @return    void
      */
     public function runcron()
     {
@@ -973,14 +994,16 @@ class Dmailer
             ->orderBy('scheduled')
             ->execute();
 
-        if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']){
-            GeneralUtility::devLog($this->getLanguageService()->getLL('dmailer_invoked_at') . ' ' . date('h:i:s d-m-Y'), 'direct_mail');
+        if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']) {
+            GeneralUtility::devLog($this->getLanguageService()->getLL('dmailer_invoked_at') . ' ' . date('h:i:s d-m-Y'),
+                'direct_mail');
         }
         $this->logArray[] = $this->getLanguageService()->getLL('dmailer_invoked_at') . ' ' . date('h:i:s d-m-Y');
 
         if (($row = $statement->fetch())) {
-            if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']){
-                GeneralUtility::devLog($this->getLanguageService()->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid'] . ', \'' . $row['subject'] . '\'' . $this->getLanguageService()->getLL('dmailer_processed'), 'direct_mail');
+            if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']) {
+                GeneralUtility::devLog($this->getLanguageService()->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid'] . ', \'' . $row['subject'] . '\'' . $this->getLanguageService()->getLL('dmailer_processed'),
+                    'direct_mail');
             }
             $this->logArray[] = $this->getLanguageService()->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid'] . ', \'' . $row['subject'] . '\'' . $this->getLanguageService()->getLL('dmailer_processed');
             $this->dmailer_prepare($row);
@@ -996,17 +1019,17 @@ class Dmailer
                 $this->dmailer_setBeginEnd($row['uid'], 'end');
             }
         } else {
-            if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']){
+            if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']) {
                 GeneralUtility::devLog($this->getLanguageService()->getLL('dmailer_nothing_to_do'), 'direct_mail');
             }
             $this->logArray[] = $this->getLanguageService()->getLL('dmailer_nothing_to_do');
         }
 
 
-
-        $parsetime = GeneralUtility::milliseconds()-$pt;
-        if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']){
-            GeneralUtility::devLog($this->getLanguageService()->getLL('dmailer_ending') . ' ' . $parsetime . ' ms', 'direct_mail');
+        $parsetime = GeneralUtility::milliseconds() - $pt;
+        if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']) {
+            GeneralUtility::devLog($this->getLanguageService()->getLL('dmailer_ending') . ' ' . $parsetime . ' ms',
+                'direct_mail');
         }
         $this->logArray[] = $this->getLanguageService()->getLL('dmailer_ending') . ' ' . $parsetime . ' ms';
     }
@@ -1017,7 +1040,7 @@ class Dmailer
      * @param int $user_dmailer_sendPerCycle Total of recipient in a cycle
      * @param string $user_dmailer_lang Language of the user
      *
-     * @return	void
+     * @return    void
      */
     public function start($user_dmailer_sendPerCycle = 50, $user_dmailer_lang = 'en')
     {
@@ -1025,7 +1048,8 @@ class Dmailer
         // Sets the message id
         $host = GeneralUtility::getHostname();
         if (!$host || $host == '127.0.0.1' || $host == 'localhost' || $host == 'localhost.localdomain') {
-            $host = ($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ? preg_replace('/[^A-Za-z0-9_\-]/', '_', $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']) : 'localhost') . '.TYPO3';
+            $host = ($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ? preg_replace('/[^A-Za-z0-9_\-]/', '_',
+                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']) : 'localhost') . '.TYPO3';
         }
 
         $idLeft = time() . '.' . uniqid();
@@ -1044,7 +1068,7 @@ class Dmailer
         $this->sendPerCycle = $user_dmailer_sendPerCycle;
         $this->user_dmailerLang = $user_dmailer_lang;
         if (!$this->nonCron) {
-            if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']){
+            if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']) {
                 GeneralUtility::devLog('Starting directmail cronjob', 'direct_mail');
             }
             // write this temp file for checking the engine in the status module
@@ -1086,11 +1110,13 @@ class Dmailer
                         $this->tempFileList[] = $tempFile;
                     }
 
-                    $this->theParts['html']['content'] = str_replace($media['subst_str'], $cid, $this->theParts['html']['content']);
+                    $this->theParts['html']['content'] = str_replace($media['subst_str'], $cid,
+                        $this->theParts['html']['content']);
                 }
             }
             // remove ` do_not_embed="1"` attributes
-            $this->theParts['html']['content'] = str_replace(' do_not_embed="1"', '', $this->theParts['html']['content']);
+            $this->theParts['html']['content'] = str_replace(' do_not_embed="1"', '',
+                $this->theParts['html']['content']);
         }
 
         // TODO: multiple instance for each NL type? HTML+Plain or Plain only?
@@ -1121,10 +1147,10 @@ class Dmailer
     /**
      * Send of the email using php mail function.
      *
-     * @param	string/array	$recipient The recipient array. array($name => $mail)
-     * @param   array           $recipRow  Recipient's data array
+     * @param    string/array    $recipient The recipient array. array($name => $mail)
+     * @param   array $recipRow Recipient's data array
      *
-     * @return	void
+     * @return    void
      */
     public function sendTheMail($recipient, $recipRow = null)
     {
@@ -1155,7 +1181,7 @@ class Dmailer
             $mailHeadersHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailHeadersHook'];
             if (is_array($mailHeadersHook)) {
                 $hookParameters = array(
-                    'row'     => &$recipRow,
+                    'row' => &$recipRow,
                     'header' => &$header,
                 );
                 $hookReference = &$this;
@@ -1205,9 +1231,9 @@ class Dmailer
     /**
      * Add HTML to an email
      *
-     * @param	string $file String location of the HTML
+     * @param    string $file String location of the HTML
      *
-     * @return	mixed		bool: HTML fetch status. string: if HTML is a frameset.
+     * @return    mixed        bool: HTML fetch status. string: if HTML is a frameset.
      */
     public function addHTML($file)
     {
@@ -1228,7 +1254,7 @@ class Dmailer
     /**
      * Fetches the HTML-content from either url or local server file
      *
-     * @param	string $url Url of the html to fetch
+     * @param    string $url Url of the html to fetch
      *
      * @return bool Whether the data was fetched or not
      */
@@ -1261,7 +1287,7 @@ class Dmailer
     /**
      * If it's a HTML email, which MIME type?
      *
-     * @return	string		MIME type of the email
+     * @return    string        MIME type of the email
      */
     public function getHTMLContentType()
     {
@@ -1293,7 +1319,7 @@ class Dmailer
      * See Bug Tracker 8265. It will be removed if it's fixed.
      * This function substitutes the hrefs in $this->theParts["html"]["content"]
      *
-     * @return	void
+     * @return    void
      */
     public function substHREFsInHTML()
     {
@@ -1334,7 +1360,7 @@ class Dmailer
      * @param string $writeMode Mode to open a file
      * @param string $logMsg Log message
      *
-     * @return	void
+     * @return    void
      */
     public function dmailer_log($writeMode, $logMsg)
     {
@@ -1437,7 +1463,7 @@ class Dmailer
      *
      * @param string $content The plain content
      *
-     * @return	void
+     * @return    void
      */
     public function setPlain($content)
     {
@@ -1459,14 +1485,24 @@ class Dmailer
     /**
      * Extracts all media-links from $this->theParts['html']['content']
      *
-     * @return	void
+     * @return    void
      */
     public function extractMediaLinks()
     {
         $this->theParts['html']['media'] = array();
 
         $htmlContent = $this->theParts['html']['content'];
-        $attribRegex = $this->tag_regex(array('img', 'table', 'td', 'tr', 'body', 'iframe', 'script', 'input', 'embed'));
+        $attribRegex = $this->tag_regex(array(
+            'img',
+            'table',
+            'td',
+            'tr',
+            'body',
+            'iframe',
+            'script',
+            'input',
+            'embed'
+        ));
         $imageList = '';
 
         // split the document by the beginning of the above tags
@@ -1487,7 +1523,8 @@ class Dmailer
             $imageData['ref'] = ($attributes['src'] ? $attributes['src'] : $attributes['background']);
             if ($imageData['ref']) {
                 // find out if the value had quotes around it
-                $imageData['quotes'] = (substr($codepieces[$i], strpos($codepieces[$i], $imageData['ref']) - 1, 1) == '"') ? '"' : '';
+                $imageData['quotes'] = (substr($codepieces[$i], strpos($codepieces[$i], $imageData['ref']) - 1,
+                        1) == '"') ? '"' : '';
                 // subst_str is the string to look for, when substituting lateron
                 $imageData['subst_str'] = $imageData['quotes'] . $imageData['ref'] . $imageData['quotes'];
                 if ($imageData['ref'] && !strstr($imageList, '|' . $imageData['subst_str'] . '|')) {
@@ -1515,7 +1552,8 @@ class Dmailer
                 // Finds the src or background attribute
                 $imageData['ref'] = $attributes['href'];
                 // Finds out if the value had quotes around it
-                $imageData['quotes'] = (substr($codepieces[$i], strpos($codepieces[$i], $imageData['ref']) - 1, 1) == '"') ? '"' : '';
+                $imageData['quotes'] = (substr($codepieces[$i], strpos($codepieces[$i], $imageData['ref']) - 1,
+                        1) == '"') ? '"' : '';
                 // subst_str is the string to look for, when substituting lateron
                 $imageData['subst_str'] = $imageData['quotes'] . $imageData['ref'] . $imageData['quotes'];
                 if ($imageData['ref'] && !strstr($imageList, '|' . $imageData['subst_str'] . '|')) {
@@ -1561,7 +1599,7 @@ class Dmailer
     /**
      * Extracts all hyper-links from $this->theParts["html"]["content"]
      *
-     * @return	void
+     * @return    void
      */
     public function extractHyperLinks()
     {
@@ -1590,7 +1628,8 @@ class Dmailer
                 $hrefData['quotes'] = $quotes;
                 // subst_str is the string to look for when substituting later on
                 $hrefData['subst_str'] = $quotes . $hrefData['ref'] . $quotes;
-                if ($hrefData['ref'] && substr(trim($hrefData['ref']), 0, 1) != '#' && !strstr($linkList, '|' . $hrefData['subst_str'] . '|')) {
+                if ($hrefData['ref'] && substr(trim($hrefData['ref']), 0, 1) != '#' && !strstr($linkList,
+                        '|' . $hrefData['subst_str'] . '|')) {
                     $linkList .= '|' . $hrefData['subst_str'] . '|';
                     $hrefData['absRef'] = $this->absRef($hrefData['ref']);
                     $hrefData['tag'] = $tag;
@@ -1631,7 +1670,7 @@ class Dmailer
     /**
      * Extracts all media-links from $this->theParts["html"]["content"]
      *
-     * @return	array	two-dimensional array with information about each frame
+     * @return    array    two-dimensional array with information about each frame
      */
     public function extractFramesInfo()
     {
@@ -1660,7 +1699,7 @@ class Dmailer
      * Creates a regular expression out of a list of tags
      *
      * @param string|array $tags Array the list of tags
-     * 		(either as array or string if it is one tag)
+     *        (either as array or string if it is one tag)
      *
      * @return string the regular expression
      */
@@ -1682,7 +1721,7 @@ class Dmailer
      * Check it with is_set();
      *
      * @param string $tag Tag is either like this "<TAG OPTION ATTRIB=VALUE>" or
-     *				 this " OPTION ATTRIB=VALUE>" which means you can omit the tag-name
+     *                 this " OPTION ATTRIB=VALUE>" which means you can omit the tag-name
      * @param boolean $removeQuotes When TRUE (default) quotes around a value will get removed
      *
      * @return array array with attributes as keys in lower-case

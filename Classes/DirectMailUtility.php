@@ -26,6 +26,7 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /**
  * Static class.
@@ -936,7 +937,7 @@ class DirectMailUtility
         if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] == 1) {
             $scheme = 'http';
         }
-        return ($domainName ? (($scheme ? $scheme : 'http') . '://' . $domainName . ($port ? ':' . $port : '') . '/') : GeneralUtility::getIndpEnv('TYPO3_SITE_URL')) . 'index.php';
+        return ($domainName ? (($scheme ? $scheme : 'http') . '://' . $domainName . ($port ? ':' . $port : '') . '/') : GeneralUtility::getIndpEnv('TYPO3_SITE_URL'));
     }
 
     /**
@@ -1198,13 +1199,12 @@ class DirectMailUtility
         $pageRecord = BackendUtility::getRecord('pages', $pageUid);
         // Fetch page title from pages_language_overlay
         if ($newRecord['sys_language_uid'] > 0) {
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages_language_overlay');
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
             $pageRecordOverlay = $queryBuilder->select('title')
-                ->from('pages_language_overlay')
-                ->add('where', 'pid=' . (int)$pageUid .
-                    ' AND sys_language_uid=' . $newRecord['sys_language_uid'])
+                ->from('pages')
+                ->where('l10n_parent=' . (int)$pageUid . ' AND sys_language_uid=' . $newRecord['sys_language_uid'])
                 ->execute()
-                ->fetcth();
+                ->fetch();
             if (is_array($pageRecordOverlay)) {
                 $pageRecord['title'] = $pageRecordOverlay['title'];
             }
@@ -1363,6 +1363,7 @@ class DirectMailUtility
         $plainTextUrl = $urls['plainTextUrl'];
         $htmlUrl = $urls['htmlUrl'];
         $urlBase = $urls['baseUrl'];
+
 
         // Make sure long_link_rdct_url is consistent with use_domain.
         $row['long_link_rdct_url'] = $urlBase;
@@ -1561,8 +1562,21 @@ class DirectMailUtility
                 $result['plainTextUrl'] = $row['plainParams'];
                 break;
             default:
-                $result['htmlUrl'] = $result['baseUrl'] . '?id=' . $row['page'] . $row['HTMLParams'];
-                $result['plainTextUrl'] = $result['baseUrl'] . '?id=' . $row['page'] . $row['plainParams'];
+
+                $cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+                $result['htmlUrl'] = $result['baseUrl'] . $cObj->typolink_URL([
+                    'parameter' => $row['page'],
+                    'forceAbsoluteUrl' => false,
+                    'linkAccessRestrictedPages' => true,
+                    'additionalParams' => $row['HTMLParams'],
+                ]);
+
+                $result['plainTextUrl'] = $result['baseUrl'] . $cObj->typolink_URL([
+                    'parameter' => $row['page'],
+                    'forceAbsoluteUrl' => false,
+                    'linkAccessRestrictedPages' => true,
+                    'additionalParams' =>  $row['plainParams'],
+                ]);
         }
 
         // plain

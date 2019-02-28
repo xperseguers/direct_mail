@@ -2133,10 +2133,10 @@ class Dmail extends BaseScriptClass
                 $langRow = $queryBuilder
                     ->select('uid')
                     ->from('pages')
-					->where(
-						$queryBuilder->expr()->eq('l10n_parent', $queryBuilder->createNamedParameter((int)$pageUid)),
-						$queryBuilder->expr()->eq('sys_language_uid', $queryBuilder->createNamedParameter((int)$land['uid'])),
-					)
+                    ->where(
+                        $queryBuilder->expr()->eq('l10n_parent', $queryBuilder->createNamedParameter((int)$pageUid)),
+                        $queryBuilder->expr()->eq('sys_language_uid', $queryBuilder->createNamedParameter((int)$land['uid']))
+                    )
                     ->execute()
                     ->fetchAll();
 

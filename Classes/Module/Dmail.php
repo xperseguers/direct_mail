@@ -250,7 +250,7 @@ class Dmail extends BaseScriptClass
             $this->doc->form = '<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
 
             // Add CSS
-            $this->getPageRenderer()->addCssFile(ExtensionManagementUtility::extPath('direct_mail') . 'Resources/Public/StyleSheets/modules.css',
+            $this->getPageRenderer()->addCssFile('EXT:direct_mail/Resources/Public/StyleSheets/modules.css',
                 'stylesheet', 'all', '', false, false);
 
             // JavaScript
